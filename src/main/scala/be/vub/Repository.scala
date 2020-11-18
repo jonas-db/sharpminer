@@ -10,13 +10,13 @@ class Repository(pathname : String) {
   
   private val git : Git = Git.open(f)
   
-  def getCommits(treeName: String) : List[Commit] = {
+  def getCommits(treeName: String, limit: Int) : List[Commit] = {
     val repository = new FileRepository(f)
     var commits: List[String] = List()
     for (commit <- git.log.add(repository.resolve(treeName)).call.asScala) {
       commits = commit.getName::commits
     }
-    commits.tail.map(x => getCommit(x))
+    commits.tail.take(limit).map(x => getCommit(x))
   }
   
   def getGit : Git = git

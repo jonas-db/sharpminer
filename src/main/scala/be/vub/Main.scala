@@ -5,14 +5,15 @@ object Main {
     if(args.length == 3){
       println("Start")
       println("Get commits: ")
-        val commits = new Repository(args(0)).getCommits("master").take(args(1).toInt)
+      val repo = new Repository(args(0))
+      val commits = repo.getCommits("master", args(1).toInt)
+      println("Commits="+commits.size)
+      println("getting edits...")
       val edits = commits.flatMap(_.getAllConcreteEdits)
-      println("V"+commits.size)
       println("Amount of edits : " + edits.length)
       println("start clustering: ")
       val cluster = new HierarchicalCluster(edits)
-      println("V")
-      println("create json: ")
+      println("creating json: ")
       val mode = args(2)
       if(mode == "BigCluster"){
         cluster.resultAsJSON()
@@ -23,7 +24,7 @@ object Main {
     } else if(args.length == 2){
       println("Start")
       println("Get commits: ")
-      val edits = new Repository(args(0)).getCommits("master").flatMap(_.getAllConcreteEdits)
+      val edits = new Repository(args(0)).getCommits("master", Int.MaxValue).flatMap(_.getAllConcreteEdits)
       println("V")
       println("Amount of edits : " + edits.length)
       println("start clustering: ")

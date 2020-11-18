@@ -86,6 +86,13 @@ class HierarchicalCluster(edits : List[Edit]) {
         ujson.Obj("Reference"-> edit.getID,"importance"->importance ,"distance"-> edit.getDistance,"Children"-> children)
       )
     }
+    val dir11 = new File("out")
+    var successful11 = dir11.mkdir
+    while(!successful11){
+      successful11=dir11.mkdir()
+      println("unsuccesfull 11")
+    }
+
     val dir1 = new File("out/json")
     var successful1 = dir1.mkdir
     while(!successful1){
@@ -147,21 +154,28 @@ class HierarchicalCluster(edits : List[Edit]) {
         }
       }
     }
+    val dir11 = new File("out")
+    var successful11 = dir11.mkdir
+    while(!successful11 && !dir11.exists()){
+      successful11=dir11.mkdir()
+      println("unsuccesfull 11")
+    }
+
     val dir1 = new File("out/json")
     var successful1 = dir1.mkdir
-    while(!successful1){
+    while(!successful1 && !dir11.exists()){
       successful1=dir1.mkdir()
       println("unsuccesfull 1")
     }
     val dir2 = new File("out/json/Edits")
     var successful2 = dir2.mkdir
-    while(!successful2){
+    while(!successful2 && !dir11.exists()){
       successful2=dir2.mkdir()
       println("unsuccesfull 2")
     }
     val dir3 = new File("out/json/Clusters")
     var successful3 = dir3.mkdir
-    while(!successful3){
+    while(!successful3 && !dir11.exists()){
       successful3=dir3.mkdir()
       println("unsuccesfull 3")
     }
