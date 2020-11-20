@@ -1,12 +1,12 @@
 # SharpMiner
 A tool for mining edit-patterns from C# code.
 
-#1 Installation: 
+# 1 Installation: 
 SrcML: https://www.srcml.org/#download
 
 Gradle: https://gradle.org/install
 
-#2 Execution:
+# 2 Execution:
 Format:
 
 `gradle run --args="PATH NUMBER_OF_COMMITS CLUSTER_TYPE"`
@@ -23,5 +23,5 @@ For example:
 
 `gradle run --args="a/path/to/.git 10 RelevantCluster"`
 
-#3 Output:
+# 3 Output:
 A folder `out` containing the clusters and edits.
