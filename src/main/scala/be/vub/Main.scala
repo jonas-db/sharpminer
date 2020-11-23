@@ -18,7 +18,7 @@ object Main {
       if(mode == "BigCluster"){
         cluster.resultAsJSON()
       } else if(mode == "RelevantCluster"){
-        cluster.clustersToJSON()
+        cluster.relevantClustersToJSON()
       }
       println("V")
     } else if(args.length == 2){
@@ -35,7 +35,7 @@ object Main {
       if(mode == "BigCluster"){
         cluster.resultAsJSON()
       } else if(mode == "RelevantCluster"){
-        cluster.clustersToJSON()
+        cluster.relevantClustersToJSON()
       }
       println("V")
     } else {

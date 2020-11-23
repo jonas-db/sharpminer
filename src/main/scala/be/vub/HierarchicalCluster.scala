@@ -70,7 +70,7 @@ class HierarchicalCluster(edits : List[Edit]) {
   }
 
   def resultAsJSON(): ujson.Arr = {
-    def clusterToJSON(edit : Edit): ujson.Arr ={
+    def clusterToJSON(edit : Edit): ujson.Arr = {
       val left = edit.getLeft
       val right = edit.getRight
       var children = List[ujson.Arr]()
@@ -114,14 +114,26 @@ class HierarchicalCluster(edits : List[Edit]) {
     json
   }
 
-  def clustersToJSON() : Unit = {
+  def relevantClustersToJSON() : Unit = {
+    var l = List(result)
+
     def childrenToJSON(edit: Edit): ujson.Arr = {
         val left = edit.getLeft
         val right = edit.getRight
         var children = List[ujson.Arr]()
         if(left != null && right != null){
-          children = childrenToJSON(left) :: childrenToJSON(right) :: children
+          //children = childrenToJSON(left) :: childrenToJSON(right) :: children
+
+          var todo = List(left, right)
+
+          while(todo.nonEmpty) {
+            val h = todo.head
+            todo = todo.tail
+
+            children = childrenToJSON(h) :: children
+          }
         }
+
         if(!(floorMod(edit.getBeforeTree.getType,10000)  == hole) && !(floorMod(edit.getAfterTree.getType,10000) == hole)){
           writeEdit(edit)
 
@@ -130,6 +142,8 @@ class HierarchicalCluster(edits : List[Edit]) {
         ujson.Obj("Reference"-> edit.getID,"distance"-> edit.getDistance,"Children"-> children)
       )
     }
+
+
     def clusterToJSON(edit : Edit): Unit ={
       val left = edit.getLeft
       val right = edit.getRight
@@ -138,8 +152,18 @@ class HierarchicalCluster(edits : List[Edit]) {
         writeEdit(edit)
         val newFile = new File("out/json/Clusters/Cluster"+ edit.getID + ".json")
         var children = List[ujson.Arr]()
-        if(left != null && right != null){
-          children = childrenToJSON(left) :: childrenToJSON(right) :: children
+        if(left != null && right != null) {
+          //children = childrenToJSON(left) :: childrenToJSON(right) :: children
+
+          var todo = List(left, right)
+
+          while(todo.nonEmpty) {
+            val h = todo.head
+            todo = todo.tail
+
+            children = childrenToJSON(h) :: children
+          }
+
         }
         val json = ujson.Arr(
           ujson.Obj("Reference"-> edit.getID,"distance"-> edit.getDistance,"Children"-> children)
@@ -149,8 +173,10 @@ class HierarchicalCluster(edits : List[Edit]) {
         newbw.close()
       } else {
         if(left != null && right != null){
-          clusterToJSON(left)
-          clusterToJSON(right)
+          l = l :+ left
+          l = l :+ right
+          //clusterToJSON(left)
+          //clusterToJSON(right)
         }
       }
     }
@@ -179,6 +205,20 @@ class HierarchicalCluster(edits : List[Edit]) {
       successful3=dir3.mkdir()
       println("unsuccesfull 3")
     }
-    clusterToJSON(result)
+    //clusterToJSON(result)
+
+
+
+    while(l.nonEmpty) {
+        val h = l.head
+        l = l.tail
+
+        clusterToJSON(h)
+    }
   }
+
+
+
+
+
 }
