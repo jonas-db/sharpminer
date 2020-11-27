@@ -117,10 +117,14 @@ class HierarchicalCluster(edits : List[Edit]) {
   def relevantClustersToJSON() : Unit = {
     var l = List(result)
 
+    var set: Set[Int] = Set.empty[Int]
+    var duplicate: Int = 0
+
     def childrenToJSON(edit: Edit): ujson.Arr = {
         val left = edit.getLeft
         val right = edit.getRight
         var children = List[ujson.Arr]()
+
         if(left != null && right != null){
           //children = childrenToJSON(left) :: childrenToJSON(right) :: children
 
@@ -138,6 +142,15 @@ class HierarchicalCluster(edits : List[Edit]) {
           writeEdit(edit)
 
         }
+/*
+      if(set.contains(edit.getID)) {
+        println("contains")
+        duplicate = duplicate + 1
+      } else {
+        println("not contains:"+edit.getID)
+      }
+      set = set + edit.getID
+*/
       ujson.Arr(
         ujson.Obj("Reference"-> edit.getID,"distance"-> edit.getDistance,"Children"-> children)
       )
@@ -215,6 +228,8 @@ class HierarchicalCluster(edits : List[Edit]) {
 
         clusterToJSON(h)
     }
+
+    println("duplicate="+duplicate)
   }
 
 

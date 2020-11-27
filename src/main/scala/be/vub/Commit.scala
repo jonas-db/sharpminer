@@ -13,7 +13,9 @@ class Commit(commitIdHash : String , repository: Repository) {
 
   def getCommitIdHash: String = commitIdHash
 
-  private val allChangedFiles : List[ChangedFile] = {
+  private val allChangedFiles : List[ChangedFile] = getFiles
+
+  def getFiles: List[ChangedFile] = {
     //find the first previous commit
     val git = repository.getGit
     val commitId : ObjectId = git.getRepository.resolve(commitIdHash)
