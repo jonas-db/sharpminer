@@ -11,6 +11,8 @@ import scala.jdk.CollectionConverters._
 
 class ChangedFile(commit: Commit, oldProgram: String, newProgram: String) {
 
+  var path = ""
+
   def getConcreteEdits: List[ConcreteEdit] = {
     Run.initGenerators()
 
@@ -64,6 +66,8 @@ class ChangedFile(commit: Commit, oldProgram: String, newProgram: String) {
 
       concreteEdits = concreteEdit :: concreteEdits
     }
+
+    Main.writeToFile("edits.csv", s"${commit.getCommitIdHash},$path,${mappings.size},${modified.size},${unmodified.size},${concreteEdits.size}\n")
 
     concreteEdits
   }

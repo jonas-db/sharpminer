@@ -52,7 +52,7 @@ class Commit(commitIdHash : String , repository: Repository) {
     val diffs = getDiff()
     var currentChangedFiles : List[ChangedFile] = List[ChangedFile]()
     for(entry : DiffEntry <- diffs){
-      if ((entry.getChangeType == DiffEntry.ChangeType.MODIFY)&& entry.toString.contains(".cs")) {
+      if ((entry.getChangeType == DiffEntry.ChangeType.MODIFY) && entry.getOldPath.endsWith(".cs")) {
         var loop = 0
         while(loop < 3){
           try{
@@ -60,6 +60,9 @@ class Commit(commitIdHash : String , repository: Repository) {
             val file : ChangedFile = new ChangedFile(this,
             fetchSource(entry.getNewId.toObjectId),
             fetchSource(entry.getOldId.toObjectId))
+
+            file.path = entry.getOldPath
+
             currentChangedFiles = currentChangedFiles.::(file)
             loop = 3
           }
@@ -72,14 +75,9 @@ class Commit(commitIdHash : String , repository: Repository) {
 
     }
 
-    writeToFile("files.csv", s"$commitIdHash,${diffs.size},${diffs.count(_.toString.contains(".cs"))},${currentChangedFiles.size}\n")
+    Main.writeToFile("files.csv", s"$commitIdHash,${diffs.size},${diffs.count(_.getOldPath.contains(".cs"))},${currentChangedFiles.size}\n")
 
     currentChangedFiles
-  }
-
-  def writeToFile(p: String, s: String): Unit = {
-    val pw = new FileWriter(new File(p),true)
-    try pw.write(s) finally pw.close()
   }
 
   def getAllConcreteEdits : List[Edit] = {
@@ -89,8 +87,6 @@ class Commit(commitIdHash : String , repository: Repository) {
       val concreteEdits = changedFile.getConcreteEdits
       allEdits = concreteEdits:::allEdits
     }
-
-    writeToFile("edits.csv", s"$commitIdHash,${allEdits.size}\n")
 
     allEdits
   }

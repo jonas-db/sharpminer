@@ -1,12 +1,18 @@
 package be.vub
 
-import java.io.File
+import java.io.{File, FileWriter}
 
 object Main {
 
   val folder = new File("out")
   val debugFiles = new File("files.csv")
   val debugEdits = new File("edits.csv")
+
+
+  def writeToFile(p: String, s: String): Unit = {
+    val pw = new FileWriter(new File(p),true)
+    try pw.write(s) finally pw.close()
+  }
 
   def main(args: Array[String]): Unit = {
     if(args.length == 3){
@@ -19,6 +25,9 @@ object Main {
         if(folder.exists()) FileUtils.delete(folder, FileUtils.RECURSIVE)
         if(debugFiles.exists()) FileUtils.delete(debugFiles)
         if(debugEdits.exists()) FileUtils.delete(debugEdits)
+
+        Main.writeToFile("files.csv", "commitIdHash,diffs,csFiles,currentChangedFiles\n")
+        Main.writeToFile("edits.csv", "commitIdHash,path,mappings,modified,unmodified,concreteEdits\n")
       }
       catch {
         case ioe: IOException =>
