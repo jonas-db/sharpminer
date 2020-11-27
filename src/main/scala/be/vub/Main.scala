@@ -1,9 +1,33 @@
 package be.vub
 
+import java.io.File
+
 object Main {
+
+  val folder = new File("out")
+  val debugFiles = new File("files.csv")
+  val debugEdits = new File("edits.csv")
+
   def main(args: Array[String]): Unit = {
     if(args.length == 3){
       println("Start")
+
+
+      import org.eclipse.jgit.util.FileUtils
+      import java.io.IOException
+      try {
+        if(folder.exists()) FileUtils.delete(folder, FileUtils.RECURSIVE)
+        if(debugFiles.exists()) FileUtils.delete(debugFiles)
+        if(debugEdits.exists()) FileUtils.delete(debugEdits)
+      }
+      catch {
+        case ioe: IOException =>
+          // log the exception here
+          ioe.printStackTrace()
+          throw ioe
+      }
+
+
       println("Get commits: ")
       val repo = new Repository(args(0))
       val commits = repo.getCommits("master", args(1).toInt)
