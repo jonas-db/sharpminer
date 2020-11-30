@@ -84,8 +84,16 @@ class Commit(commitIdHash : String , repository: Repository) {
     var allEdits : List[Edit] = List()
     val all = getFiles
     for(changedFile <- all){
-      val concreteEdits = changedFile.getConcreteEdits
-      allEdits = concreteEdits:::allEdits
+
+
+      try {
+        val concreteEdits = changedFile.getConcreteEdits
+        allEdits = concreteEdits ::: allEdits
+      } catch {
+        case _: Throwable => ()
+      }
+
+
     }
 
     allEdits
