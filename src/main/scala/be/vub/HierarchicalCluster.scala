@@ -22,20 +22,28 @@ class HierarchicalCluster(edits : List[Edit]) {
     var closest : Edit = current
     var closestEditPattern : EditPattern = null
     var closestDistance : Int = -1
-    for{cluster <- activeClusters.filter(_ != current).seq} {
-      val editPattern = new EditPattern(cluster,current)
-      val distance = editPattern.getDistance
-      if ((distance < closestDistance) || (closestDistance == -1)) {
-        closest = cluster
-        closestEditPattern = editPattern
-        closestDistance = distance
+    for{cluster <- activeClusters} {
+      //activeClusters.filter(_ != current).seq
+      if(!cluster.equals(current)) {
+        val editPattern = new EditPattern(cluster,current)
+        val distance = editPattern.getDistance
+        if ((distance < closestDistance) || (closestDistance == -1)) {
+          closest = cluster
+          closestEditPattern = editPattern
+          closestDistance = distance
+        }
       }
+
     }
     (closest,closestEditPattern)
   }
 
+  var average: Long = 0
+  var done = 1
+
   @scala.annotation.tailrec
   private def nearestNeighbourChain(): Unit = {
+    val start = java.lang.System.currentTimeMillis()
     if(s.isEmpty){
       s.push(activeClusters.head)
     }
@@ -45,11 +53,29 @@ class HierarchicalCluster(edits : List[Edit]) {
     if(s.contains(closest._1)){
       s.pop()
       s.remove(s.indexOf(closest._1))
-      activeClusters = closest._2 +: activeClusters.filter(_ != closest._1).filter(_ != current)
+      //activeClusters = closest._2 +: activeClusters.filter(_ != closest._1).filter(_ != current)
+      activeClusters = closest._2 +: activeClusters.filter(x => x != closest._1 && x != current)
     } else {
       s.push(closest._1)
     }
-    if(activeClusters.length != 1){
+    val end = java.lang.System.currentTimeMillis()
+    val diff = end-start
+
+    average = average + diff
+    done = done + 1
+
+    if(done % 100 == 0) {
+      val le = activeClusters.length
+      //val eta = (Math.pow(le, 2)*(average/done)) / edits.length
+      val eta = (le*(average/done))
+      println(s"Took ${diff}ms, Clusters left: ${le}, ETA: ${(eta/1000).toInt}secs ${(eta/60000).toInt}mins ${(eta/(60000*60)).toInt}hours")
+    }
+
+    if(activeClusters.length <= 1) {
+      println(s"Done. Iterations=$done")
+    }
+
+    if(activeClusters.length != 1) {
       nearestNeighbourChain()
     }
   }

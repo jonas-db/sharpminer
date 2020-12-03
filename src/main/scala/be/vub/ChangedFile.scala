@@ -4,12 +4,13 @@ import java.io.{BufferedWriter, File, FileWriter}
 
 import com.github.gumtreediff.client.Run
 import com.github.gumtreediff.gen.Generators
+import com.github.gumtreediff.io.TreeIoUtils
 import com.github.gumtreediff.matchers.{Mapping, Matchers}
 import com.github.gumtreediff.tree.ITree
 
 import scala.jdk.CollectionConverters._
 
-class ChangedFile(commit: Commit, oldProgram: String, newProgram: String) {
+class ChangedFile(commitIdHash: String, oldProgram: String, newProgram: String) {
 
   var path = ""
 
@@ -32,15 +33,12 @@ class ChangedFile(commit: Commit, oldProgram: String, newProgram: String) {
       newFile
     }
 
-    val oldTree: ITree = {
-      val oldTreeContext = Generators.getInstance.getTree(oldFile.getAbsolutePath)
-      oldTreeContext.getRoot // return the root of the tree
-    }
+    val oldTreeContext = Generators.getInstance.getTree(oldFile.getAbsolutePath)
+    val oldTree: ITree = oldTreeContext.getRoot // return the root of the tree
 
-    val newTree: ITree = {
-      val newTreeContext = Generators.getInstance.getTree(newFile.getAbsolutePath)
-      newTreeContext.getRoot
-    }
+    val newTreeContext = Generators.getInstance.getTree(newFile.getAbsolutePath)
+    val newTree: ITree = newTreeContext.getRoot
+
     val m = Matchers.getInstance.getMatcher(newTree, oldTree) // retrieve the default matcher
     m.`match`()
     val mappingStore = m.getMappings
@@ -62,12 +60,12 @@ class ChangedFile(commit: Commit, oldProgram: String, newProgram: String) {
     for (mod <- modified) {
       val concreteEdit: ConcreteEdit = new ConcreteEdit(beforeTree = mod.getFirst,
         afterTree = mod.getSecond,
-        commits = List[String](commit.getCommitIdHash))
+        commits = List[String](commitIdHash))
 
       concreteEdits = concreteEdit :: concreteEdits
     }
 
-    Main.writeToFile("edits.csv", s"${commit.getCommitIdHash},$path,${mappings.size},${modified.size},${unmodified.size},${concreteEdits.size}\n")
+    Main.writeToFile("edits.csv", s"${commitIdHash},$path,${mappings.size},${modified.size},${unmodified.size},${concreteEdits.size}\n")
 
     concreteEdits
   }

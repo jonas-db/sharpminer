@@ -7,6 +7,7 @@ object Main {
   val folder = new File("out")
   val debugFiles = new File("files.csv")
   val debugEdits = new File("edits.csv")
+  val debugInfo = new File("debug.txt")
 
 
   def writeToFile(p: String, s: String): Unit = {
@@ -25,6 +26,7 @@ object Main {
         if(folder.exists()) FileUtils.delete(folder, FileUtils.RECURSIVE)
         if(debugFiles.exists()) FileUtils.delete(debugFiles)
         if(debugEdits.exists()) FileUtils.delete(debugEdits)
+        if(debugInfo.exists()) FileUtils.delete(debugInfo)
 
         Main.writeToFile("files.csv", "commitIdHash,diffs,csFiles,currentChangedFiles\n")
         Main.writeToFile("edits.csv", "commitIdHash,path,mappings,modified,unmodified,concreteEdits\n")
@@ -38,12 +40,22 @@ object Main {
 
 
       println("Get commits: ")
+      val start = java.lang.System.currentTimeMillis()
+
       val repo = new Repository(args(0))
       val commits = repo.getCommits("master", args(1).toInt)
       println("Commits="+commits.size)
       println("getting edits...")
       val edits = commits.flatMap(_.getAllConcreteEdits)
       println("Amount of edits : " + edits.length)
+
+
+
+      val end = java.lang.System.currentTimeMillis()
+      val diff = end-start
+      println(s"Took ${diff/1000}secs ${diff/60000}mins")
+      Main.writeToFile("debug.txt", s"${edits.length}\n${diff/1000}secs")
+
       println("start clustering: ")
       val cluster = new HierarchicalCluster(edits)
       println("creating json: ")

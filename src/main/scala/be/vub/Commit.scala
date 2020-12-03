@@ -57,7 +57,7 @@ class Commit(commitIdHash : String , repository: Repository) {
         while(loop < 3){
           try{
 
-            val file : ChangedFile = new ChangedFile(this,
+            val file : ChangedFile = new ChangedFile(this.commitIdHash,
             fetchSource(entry.getNewId.toObjectId),
             fetchSource(entry.getOldId.toObjectId))
 
