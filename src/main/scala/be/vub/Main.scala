@@ -12,7 +12,6 @@ object Main {
   val debugEdits = new File("edits.csv")
   val debugInfo = new File("debug.txt")
 
-
   def writeToFile(p: String, s: String): Unit = {
     val pw = new FileWriter(new File(p),true)
     try pw.write(s) finally pw.close()
@@ -47,6 +46,9 @@ object Main {
         println(s"Dumped ${changedFiles.size} changed files to ${dir.getAbsolutePath}")
       }
     }
+    // PATH CLUSTER_TYPE NUMBER_OF_COMMITS
+    // E.g. my/path/to/repo.git RelevantCluster 100
+    // E.g. my/path/to/repo.git BigCluster 100
     else if(args.length == 3){
       println("Start")
 
@@ -61,11 +63,9 @@ object Main {
       }
       catch {
         case ioe: IOException =>
-          // log the exception here
           ioe.printStackTrace()
           throw ioe
       }
-
 
       println("Get commits: ")
       val start = java.lang.System.currentTimeMillis()
@@ -77,8 +77,6 @@ object Main {
       val edits = commits.flatMap(_.getAllConcreteEdits)
       println("Amount of edits : " + edits.length)
 
-
-
       val end = java.lang.System.currentTimeMillis()
       val diff = end-start
       println(s"Took ${diff/1000}secs ${diff/60000}mins")
@@ -88,23 +86,6 @@ object Main {
       val cluster = new HierarchicalCluster(edits)
       println("creating json: ")
       val mode = args(2)
-      if(mode == "BigCluster"){
-        cluster.resultAsJSON()
-      } else if(mode == "RelevantCluster"){
-        cluster.relevantClustersToJSON()
-      }
-      println("V")
-    } else if(args.length == 2){
-      println("Start")
-      println("Get commits: ")
-      val edits = new Repository(args(0)).getCommits("master", Int.MaxValue).flatMap(_.getAllConcreteEdits)
-      println("V")
-      println("Amount of edits : " + edits.length)
-      println("start clustering: ")
-      val cluster = new HierarchicalCluster(edits)
-      println("V")
-      println("create json: ")
-      val mode = args(1)
       if(mode == "BigCluster"){
         cluster.resultAsJSON()
       } else if(mode == "RelevantCluster"){
