@@ -7,7 +7,7 @@ import java.io.IOException
 
 object Main {
 
-  val folder = new File("out")
+  val folder = new File("out/json")
   val debugFiles = new File("files.csv")
   val debugEdits = new File("edits.csv")
   val debugInfo = new File("debug.txt")
