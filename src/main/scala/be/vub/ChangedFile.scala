@@ -10,7 +10,7 @@ import com.github.gumtreediff.tree.ITree
 
 import scala.jdk.CollectionConverters._
 
-class ChangedFile(commitIdHash: String, oldProgram: String, newProgram: String) {
+class ChangedFile(val commitIdHash: String, val oldProgram: String, val newProgram: String) {
 
   var path = ""
 

@@ -2,6 +2,9 @@ package be.vub
 
 import java.io.{File, FileWriter}
 
+import org.eclipse.jgit.util.FileUtils
+import java.io.IOException
+
 object Main {
 
   val folder = new File("out")
@@ -16,12 +19,37 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    if(args.length == 3){
+
+    // PATH dump NUMBER_OF_COMMITS
+    // E.g. my/path/to/repo.git dump 100
+    if(args.length >= 2 && args(0).endsWith(".git") && args(1) == "dump"){
+      val repo = new Repository(args(0))
+      val commits = repo.getCommits("master", if(args.length == 3) args(2).toInt else Integer.MAX_VALUE)
+      val changedFiles = commits.flatMap(c => c.getFiles)
+
+      val dir = new File("out/dump")
+      if(dir.exists()) FileUtils.delete(dir, FileUtils.RECURSIVE)
+
+      if(!dir.mkdir && !dir.exists()) {
+        println(s"Unable to create ${dir.getAbsolutePath}")
+      } else {
+        changedFiles.filter(_.path.contains(".cs")).foreach(c =>{
+          val content = s"{\n" +
+            s"""  "id": "${c.commitIdHash}",\n""" +
+            s"""  "path": "${c.path}",\n""" +
+            s"""  "before": "${c.oldProgram.replaceAll("\n", "")}",\n""" +
+            s"""  "after": "${c.newProgram.replaceAll("\n", "")}"\n""" +
+            s"}"
+            val idx = c.path.lastIndexOf("/")
+            val file = c.path.substring(idx + 1, c.path.length - 3)
+            Main.writeToFile(s"out/dump/${file}-${c.commitIdHash}.json", content)
+        })
+        println(s"Dumped ${changedFiles.size} changed files to ${dir.getAbsolutePath}")
+      }
+    }
+    else if(args.length == 3){
       println("Start")
 
-
-      import org.eclipse.jgit.util.FileUtils
-      import java.io.IOException
       try {
         if(folder.exists()) FileUtils.delete(folder, FileUtils.RECURSIVE)
         if(debugFiles.exists()) FileUtils.delete(debugFiles)
