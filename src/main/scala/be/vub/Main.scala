@@ -19,11 +19,11 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
-    // PATH dump NUMBER_OF_COMMITS
-    // E.g. my/path/to/repo.git dump 100
-    if(args.length >= 2 && args(0).endsWith(".git") && args(1) == "dump"){
-      val repo = new Repository(args(0))
-      val commits = repo.getCommits("master", if(args.length == 3) args(2).toInt else Integer.MAX_VALUE)
+    // dump PATH BRANCH NUMBER_OF_COMMITS
+    // E.g. dump my/path/to/repo.git master 100
+    if(args.length >= 3 && args(0) == "dump" && args(1).endsWith(".git")){
+      val repo = new Repository(args(1))
+      val commits = repo.getCommits(args(2), if(args.length == 4) args(3).toInt else Integer.MAX_VALUE)
       val changedFiles = commits.flatMap(c => c.getFiles)
 
       val dir = new File("out/dump")
@@ -46,10 +46,10 @@ object Main {
         println(s"Dumped ${changedFiles.size} changed files to ${dir.getAbsolutePath}")
       }
     }
-    // PATH CLUSTER_TYPE NUMBER_OF_COMMITS
-    // E.g. my/path/to/repo.git RelevantCluster 100
-    // E.g. my/path/to/repo.git BigCluster 100
-    else if(args.length == 3){
+    // cluster PATH BRANCH CLUSTER_TYPE NUMBER_OF_COMMITS
+    // E.g. cluster my/path/to/repo.git master RelevantCluster 100
+    // E.g. cluster my/path/to/repo.git master BigCluster 100
+    else if(args.length >= 4 && args(0).equals("cluster") && args(1).endsWith(".git")){
       println("Start")
 
       try {
@@ -70,8 +70,8 @@ object Main {
       println("Get commits: ")
       val start = java.lang.System.currentTimeMillis()
 
-      val repo = new Repository(args(0))
-      val commits = repo.getCommits("master", args(1).toInt)
+      val repo = new Repository(args(1))
+      val commits = repo.getCommits(args(2), if(args.length == 5) args(4).toInt else Integer.MAX_VALUE)
       println("Commits="+commits.size)
       println("getting edits...")
       val edits = commits.flatMap(_.getAllConcreteEdits)
@@ -85,7 +85,7 @@ object Main {
       println("start clustering: ")
       val cluster = new HierarchicalCluster(edits)
       println("creating json: ")
-      val mode = args(2)
+      val mode = args(3)
       if(mode == "BigCluster"){
         cluster.resultAsJSON()
       } else if(mode == "RelevantCluster"){
@@ -95,9 +95,8 @@ object Main {
     } else {
       println("Unknown command")
       println("available commands are : ")
-      println("- path (BigCluster|RelevantCluster)")
-      println("- path amount (BigCluster|RelevantCluster)")
+      println("- dump path branch commits")
+      println("- cluster path branch (BigCluster|RelevantCluster) commits")
     }
-
   }
 }
