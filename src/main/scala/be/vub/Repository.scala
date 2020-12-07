@@ -13,8 +13,8 @@ class Repository(pathname : String) {
   def getCommits(treeName: String, limit: Int) : List[Commit] = {
     println("repo exists?: "+f.exists())
     val repository = new FileRepository(f)
-    println("branch="+repository.getBranch)
-    println("branch full="+repository.getFullBranch)
+    println("branch=["+repository.getBranch+"]")
+    println("branch full=["+repository.getFullBranch+"]")
     var commits: List[String] = List()
     val start = repository.resolve(treeName)
     println("start (should not be null)="+start)
